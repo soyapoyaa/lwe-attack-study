@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+.venv/
+logs/
+lattice-estimator/
+# fplll's strategies file: 8.6 MB of generated data, fetched by
+# scripts/fetch_strategies.sh. Not ours to redistribute.
+data/bkz_strategies.json
+# LaTeX build artefacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.synctex.gz
+Miniforge3-Linux-x86_64.sh
+analysis_scripts.zip
+*.sage.py
+__pycache__/
+.venv/
+data/
+lattice-estimator/
+paper/
+figures/

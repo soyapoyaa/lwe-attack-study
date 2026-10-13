@@ -1,0 +1,40 @@
+n=32  primal_usvp ->          rop: ≈2^40.4
+         red: ≈2^40.4
+           δ: 1.011142
+           β:       65
+           d:       66
+         tag:     usvp
+    best beta>=40   beta=40 d=78 log2rop=38.34
+    global minimum  beta=20 d=104 log2rop=26.78
+n=36  primal_usvp ->          rop: ≈2^42.6
+         red: ≈2^42.6
+           δ: 1.010661
+           β:       73
+           d:       74
+         tag:     usvp
+    best beta>=40   beta=40 d=99 log2rop=38.97
+    global minimum  beta=34 d=121 log2rop=37.55
+n=40  primal_usvp ->          rop: ≈2^44.8
+         red: ≈2^44.8
+           δ: 1.010208
+           β:       81
+           d:       82
+         tag:     usvp
+    best beta>=40   beta=44 d=129 log2rop=40.73
+    global minimum  beta=44 d=129 log2rop=40.73
+n=44  primal_usvp ->          rop: ≈2^43.6
+         red: ≈2^43.6
+           δ: 1.011826
+           β:       54
+           d:      136
+         tag:     usvp
+    best beta>=40   beta=54 d=136 log2rop=43.60
+    global minimum  beta=54 d=136 log2rop=43.60
+n=48  primal_usvp ->          rop: ≈2^46.1
+         red: ≈2^46.1
+           δ: 1.011266
+           β:       63
+           d:      145
+         tag:     usvp
+    best beta>=40   beta=63 d=145 log2rop=46.15
+    global minimum  beta=63 d=145 log2rop=46.15

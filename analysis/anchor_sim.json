@@ -1,0 +1,86 @@
+{
+ "32": {
+  "obs_med": 19.0,
+  "obs_range": [
+   16,
+   26
+  ],
+  "obs_width": 10,
+  "single_p5_95": [
+   16.0,
+   24.0
+  ],
+  "med10_p5_50_95": [
+   20.0,
+   20.0,
+   22.0
+  ],
+  "obs_pctile_in_med10": 2.575,
+  "width10_p95": 12.0,
+  "width10_med": 8.0,
+  "frac_single_le_obs_min": 0.05623
+ },
+ "36": {
+  "obs_med": 36.0,
+  "obs_range": [
+   20,
+   38
+  ],
+  "obs_width": 18,
+  "single_p5_95": [
+   28.0,
+   38.0
+  ],
+  "med10_p5_50_95": [
+   31.0,
+   33.0,
+   35.0
+  ],
+  "obs_pctile_in_med10": 98.53500000000001,
+  "width10_p95": 14.0,
+  "width10_med": 8.0,
+  "frac_single_le_obs_min": 0.00015
+ },
+ "40": {
+  "obs_med": 46.0,
+  "obs_range": [
+   34,
+   46
+  ],
+  "obs_width": 12,
+  "single_p5_95": [
+   38.0,
+   46.0
+  ],
+  "med10_p5_50_95": [
+   42.0,
+   43.0,
+   45.0
+  ],
+  "obs_pctile_in_med10": 99.14,
+  "width10_p95": 12.0,
+  "width10_med": 8.0,
+  "frac_single_le_obs_min": 0.00119
+ },
+ "44": {
+  "obs_med": 52.0,
+  "obs_range": [
+   46,
+   56
+  ],
+  "obs_width": 10,
+  "single_p5_95": [
+   48.0,
+   56.0
+  ],
+  "med10_p5_50_95": [
+   50.0,
+   52.0,
+   54.0
+  ],
+  "obs_pctile_in_med10": 42.815000000000005,
+  "width10_p95": 10.0,
+  "width10_med": 8.0,
+  "frac_single_le_obs_min": 0.02301
+ }
+}

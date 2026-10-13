@@ -1,0 +1,9 @@
+# Option B (pip-only) dependencies. See README section 1.
+# cysignals MUST be listed explicitly: fpylll's wheels do not pull it in and
+# `import fpylll` fails without it.
+cysignals>=1.11
+fpylll>=0.6.2
+numpy>=1.24
+pandas>=2.0
+matplotlib>=3.7
+scipy>=1.10
