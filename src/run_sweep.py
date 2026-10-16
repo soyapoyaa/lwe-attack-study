@@ -12,6 +12,13 @@ ladder  Smallest solving beta per instance, by bisection, for each n. Both
         single-beta and progressive mode. Cheaper than `prob`, and gives the
         beta-vs-n ladder plus wall-clock scaling.
 
+long    Convergence control for `prob`. Same instances (seeds), same lattice,
+        one BKZ-beta call per (n, beta, seed), but up to --tours tours
+        (default 32) and a record of when fpylll's AutoAbort / clean-tour
+        tests would have stopped the call. Writes results/raw/long.csv and
+        results/environment_long.json; never touches prob.csv. Every fixed
+        budget up to --tours is recovered from one row (solved_tour <= T).
+
 mtrade  Sample/dimension trade-off: fix n, vary the number of samples used
         (hence the lattice dimension d), find the solving beta for each.
         Shows the optimisation over d that the estimator performs internally.
@@ -21,6 +28,7 @@ Usage
     python3 src/run_sweep.py prob   --ns 32 36 40 --trials 20 --jobs 4
     python3 src/run_sweep.py ladder --ns 28 32 36 40 44 --trials 5 --jobs 4
     python3 src/run_sweep.py mtrade --ns 40 --trials 3 --jobs 4
+    python3 src/run_sweep.py long   --ns 36 32 40 44 --trials 20 --jobs 7
 
 Re-running the same command appends only the missing trials, so the sweep can
 be interrupted and resumed. Nothing is ever overwritten.
@@ -41,7 +49,8 @@ from pathlib import Path
 
 import numpy as np
 
-from attack import beta_schedule, find_beta_single, run_attack, solve_single
+from attack import (beta_schedule, find_beta_single, run_attack, solve_long,
+                    solve_single)
 from embedding import xi_tau
 from gsa_estimate import primal_usvp, usvp_gap
 from lwe_instance import gen_lwe
@@ -167,6 +176,23 @@ def trial_prob(n, beta, seed, q, dist, sigma, m, tours, timeout) -> dict:
     }
 
 
+def trial_long(n, beta, seed, q, dist, sigma, m, tours_max, timeout) -> dict:
+    inst = make_instance(n, m, seed, q, dist, sigma)
+    xi, tau = xi_tau(inst)
+    out = solve_long(inst, beta, tours=tours_max, timeout=timeout)
+    blank = lambda v: "" if v is None else v
+    return {
+        "exp": "long", "n": n, "q": q, "m": m, "d": out["d"], "sigma": sigma,
+        "dist": dist, "xi": xi, "tau": tau, "seed": seed, "beta": beta,
+        "tours_max": tours_max, "solved": int(out["solved"]), "exact": out["exact"],
+        "solved_tour": blank(out["solved_tour"]), "tours_run": out["tours_run"],
+        "abort_tour": blank(out["abort_tour"]), "clean_tour": blank(out["clean_tour"]),
+        "time": round(out["time"], 4), "timed_out": int(out["timed_out"]),
+        "gap": round(usvp_gap(n, q, m, sigma, sigma), 4),
+        "fingerprint": inst.fingerprint(), "error": out["error"] or "",
+    }
+
+
 def trial_ladder(n, seed, q, dist, sigma, m, betas, tours, timeout,
                  beta_hint=None) -> dict:
     inst = make_instance(n, m, seed, q, dist, sigma)
@@ -246,6 +272,25 @@ def build_jobs(args) -> tuple[Path, list, list[str], callable]:
                                       timeout=args.timeout)))
         return path, jobs, keys, None
 
+    if args.exp == "long":
+        path = RAW / "long.csv"
+        keys = ["n", "beta", "seed", "m", "tours_max"]
+        for n in args.ns:
+            pred = primal_usvp(n=n, q=q, sigma_s=sigma, sigma_e=sigma, m=8 * n)
+            m = args.m if args.m else pred.m_opt
+            if not _wellposed(n, m, q, sigma):
+                continue
+            lo = max(args.beta_min, pred.beta - args.beta_window)
+            hi = min(args.beta_max, pred.beta + args.beta_above)
+            # same even grid as `prob`, so every row has a partner in prob.csv
+            for beta in range(lo, hi + 1, args.beta_step):
+                for seed in range(1, args.trials + 1):
+                    jobs.append((trial_long,
+                                 dict(n=n, beta=beta, seed=seed, q=q, dist=dist,
+                                      sigma=sigma, m=m, tours_max=args.tours,
+                                      timeout=args.timeout)))
+        return path, jobs, keys, None
+
     if args.exp == "ladder":
         path = RAW / "ladder.csv"
         keys = ["n", "seed", "m"]
@@ -294,7 +339,7 @@ def _call(fn_kw):
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("exp", choices=["prob", "ladder", "mtrade"])
+    ap.add_argument("exp", choices=["prob", "ladder", "mtrade", "long"])
     ap.add_argument("--ns", type=int, nargs="+", required=True)
     ap.add_argument("--trials", type=int, default=10)
     ap.add_argument("--q", type=int, default=DEFAULTS["q"])
@@ -306,12 +351,24 @@ def main() -> None:
     ap.add_argument("--beta-max", type=int, default=80)
     ap.add_argument("--beta-step", type=int, default=2)
     ap.add_argument("--beta-window", type=int, default=16,
-                    help="prob mode: scan predicted beta +- this")
-    ap.add_argument("--tours", type=int, default=8)
-    ap.add_argument("--timeout", type=float, default=900.0)
+                    help="prob mode: scan predicted beta +- this; "
+                         "long mode: this far below the prediction")
+    ap.add_argument("--beta-above", type=int, default=16,
+                    help="long mode: scan up to this far above the prediction "
+                         "(default 16 = the prob grid; use 6 for n = 44, whose "
+                         "high-beta trials are very slow)")
+    ap.add_argument("--tours", type=int, default=None,
+                    help="tours per BKZ call (default 8; 32 for `long`)")
+    ap.add_argument("--timeout", type=float, default=None,
+                    help="seconds per call, checked at tour boundaries "
+                         "(default 900; 7200 for `long`)")
     ap.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 2) - 1))
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
+    if args.tours is None:
+        args.tours = 32 if args.exp == "long" else 8
+    if args.timeout is None:
+        args.timeout = 7200.0 if args.exp == "long" else 900.0
 
     path, jobs, keys, _ = build_jobs(args)
 
@@ -322,13 +379,16 @@ def main() -> None:
     print(f"experiment : {args.exp}")
     print(f"output     : {path}")
     print(f"parameters : q={args.q} dist={args.dist} sigma={args.sigma} "
-          f"ns={args.ns} trials={args.trials}")
+          f"ns={args.ns} trials={args.trials} tours={args.tours} "
+          f"timeout={args.timeout:.0f}s")
     print(f"jobs       : {len(jobs)} total, {len(already)} already done, "
           f"{len(todo)} to run, {args.jobs} workers")
     if args.dry_run:
         return
 
-    env_path = REPO / "results" / "environment.json"
+    # `long` keeps its own record so the original sweep's environment.json survives
+    env_name = "environment_long.json" if args.exp == "long" else "environment.json"
+    env_path = REPO / "results" / env_name
     env_path.parent.mkdir(parents=True, exist_ok=True)
     env_path.write_text(json.dumps(environment(), indent=2))
     print(f"environment: {env_path}\n")

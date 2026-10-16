@@ -209,6 +209,64 @@ def solve_single(inst: LWEInstance, beta: int, tours: int = 8,
     return out
 
 
+def solve_long(inst: LWEInstance, beta: int, tours: int = 32,
+               timeout: float = 7200.0) -> dict:
+    """`solve_single` with a long tour budget and a record of where BKZ would stop.
+
+    Identical to `solve_single` tour for tour: a fresh LLL-reduced basis, one
+    block size, `bkz.tour(par)` once per loop, a check for the secret after
+    every tour. It runs up to `tours` tours and, on the side, records
+
+      solved_tour  the tour after which the secret was found (0 = after LLL)
+      abort_tour   the first tour after which fpylll's AutoAbort test fires
+                   (the test BKZReduction.__call__ uses when AUTO_ABORT is set;
+                   the estimator's delta table for beta <= 40 was measured with
+                   that flag -- see lattice-estimator/estimator/reduction.py)
+      clean_tour   the first tour that left the basis unchanged
+
+    Neither test stops the loop. So one row gives the outcome of every fixed
+    budget up to `tours` (solved iff solved_tour <= T) and of a call that stops
+    the way a default fpylll BKZ call would (solved iff solved_tour <=
+    min(abort_tour, clean_tour)). The analysis checks that the first 8 tours
+    reproduce the original sweep (results/raw/prob.csv).
+    """
+    B, _, meta = primal_basis(inst)
+    d = meta["d"]
+    out = {"beta": beta, "d": d, "solved": False, "solved_tour": None,
+           "tours_run": 0, "abort_tour": None, "clean_tour": None,
+           "time": 0.0, "timed_out": False, "exact": None, "error": None}
+    t0 = time.perf_counter()
+    try:
+        FPLLL.set_precision(160)
+        LLL.reduction(B)
+        M = GSO.Mat(B, float_type=float_type_for(d), update=True)
+        bkz = BKZReduction(M)
+        hit = scan_basis(inst, B, meta)
+        if hit is not None:
+            out.update(solved=True, exact=hit["exact"], solved_tour=0)
+        else:
+            par = bkz_param(min(beta, d))
+            auto_abort = BKZ.AutoAbort(M, d)
+            for tour in range(1, tours + 1):
+                if time.perf_counter() - t0 > timeout:
+                    out["timed_out"] = True
+                    break
+                clean = bkz.tour(par)
+                out["tours_run"] = tour
+                hit = scan_basis(inst, B, meta)
+                if hit is not None:
+                    out.update(solved=True, exact=hit["exact"], solved_tour=tour)
+                    break
+                if clean and out["clean_tour"] is None:
+                    out["clean_tour"] = tour
+                if out["abort_tour"] is None and auto_abort.test_abort():
+                    out["abort_tour"] = tour
+    except Exception as exc:
+        out["error"] = f"{type(exc).__name__}: {exc}"
+    out["time"] = time.perf_counter() - t0
+    return out
+
+
 def find_beta_single(inst: LWEInstance, betas: list[int], tours: int = 8,
                      timeout: float = 600.0, beta_hint: int | None = None,
                      verbose: bool = False) -> dict:
