@@ -19,6 +19,12 @@ long    Convergence control for `prob`. Same instances (seeds), same lattice,
         results/environment_long.json; never touches prob.csv. Every fixed
         budget up to --tours is recovered from one row (solved_tour <= T).
 
+profile Basis shape. Same instances and lattices as `prob`, one BKZ-beta call
+        at beta = prediction - 8 and beta = prediction, up to --tours tours
+        (default 16), recording log2 ||b_i*|| after LLL and after tours
+        1, 2, 4, 8, 16. Writes results/raw/profiles.csv (profiles as JSON in
+        one column) and results/environment_profile.json.
+
 mtrade  Sample/dimension trade-off: fix n, vary the number of samples used
         (hence the lattice dimension d), find the solving beta for each.
         Shows the optimisation over d that the estimator performs internally.
@@ -29,6 +35,7 @@ Usage
     python3 src/run_sweep.py ladder --ns 28 32 36 40 44 --trials 5 --jobs 4
     python3 src/run_sweep.py mtrade --ns 40 --trials 3 --jobs 4
     python3 src/run_sweep.py long   --ns 36 32 40 44 --trials 20 --jobs 7
+    python3 src/run_sweep.py profile --ns 32 36 40 44 --trials 20 --jobs 7
 
 Re-running the same command appends only the missing trials, so the sweep can
 be interrupted and resumed. Nothing is ever overwritten.
@@ -50,7 +57,7 @@ from pathlib import Path
 import numpy as np
 
 from attack import (beta_schedule, find_beta_single, run_attack, solve_long,
-                    solve_single)
+                    solve_profile, solve_single)
 from embedding import xi_tau
 from gsa_estimate import primal_usvp, usvp_gap
 from lwe_instance import gen_lwe
@@ -193,6 +200,22 @@ def trial_long(n, beta, seed, q, dist, sigma, m, tours_max, timeout) -> dict:
     }
 
 
+def trial_profile(n, beta, seed, q, dist, sigma, m, tours_max, timeout) -> dict:
+    inst = make_instance(n, m, seed, q, dist, sigma)
+    xi, tau = xi_tau(inst)
+    out = solve_profile(inst, beta, tours=tours_max, timeout=timeout)
+    return {
+        "exp": "profile", "n": n, "q": q, "m": m, "d": out["d"], "sigma": sigma,
+        "dist": dist, "xi": xi, "tau": tau, "seed": seed, "beta": beta,
+        "tours_max": tours_max, "solved": int(out["solved"]), "exact": out["exact"],
+        "solved_tour": "" if out["solved_tour"] is None else out["solved_tour"],
+        "tours_run": out["tours_run"], "time": round(out["time"], 4),
+        "timed_out": int(out["timed_out"]),
+        "fingerprint": inst.fingerprint(), "error": out["error"] or "",
+        "profiles": json.dumps(out["profiles"], separators=(",", ":")),
+    }
+
+
 def trial_ladder(n, seed, q, dist, sigma, m, betas, tours, timeout,
                  beta_hint=None) -> dict:
     inst = make_instance(n, m, seed, q, dist, sigma)
@@ -291,6 +314,22 @@ def build_jobs(args) -> tuple[Path, list, list[str], callable]:
                                       timeout=args.timeout)))
         return path, jobs, keys, None
 
+    if args.exp == "profile":
+        path = RAW / "profiles.csv"
+        keys = ["n", "beta", "seed", "m", "tours_max"]
+        for n in args.ns:
+            pred = primal_usvp(n=n, q=q, sigma_s=sigma, sigma_e=sigma, m=8 * n)
+            m = args.m if args.m else pred.m_opt
+            if not _wellposed(n, m, q, sigma):
+                continue
+            for beta in (pred.beta - 8, pred.beta):
+                for seed in range(1, args.trials + 1):
+                    jobs.append((trial_profile,
+                                 dict(n=n, beta=beta, seed=seed, q=q, dist=dist,
+                                      sigma=sigma, m=m, tours_max=args.tours,
+                                      timeout=args.timeout)))
+        return path, jobs, keys, None
+
     if args.exp == "ladder":
         path = RAW / "ladder.csv"
         keys = ["n", "seed", "m"]
@@ -339,7 +378,7 @@ def _call(fn_kw):
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("exp", choices=["prob", "ladder", "mtrade", "long"])
+    ap.add_argument("exp", choices=["prob", "ladder", "mtrade", "long", "profile"])
     ap.add_argument("--ns", type=int, nargs="+", required=True)
     ap.add_argument("--trials", type=int, default=10)
     ap.add_argument("--q", type=int, default=DEFAULTS["q"])
@@ -366,9 +405,9 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     if args.tours is None:
-        args.tours = 32 if args.exp == "long" else 8
+        args.tours = {"long": 32, "profile": 16}.get(args.exp, 8)
     if args.timeout is None:
-        args.timeout = 7200.0 if args.exp == "long" else 900.0
+        args.timeout = 7200.0 if args.exp in ("long", "profile") else 900.0
 
     path, jobs, keys, _ = build_jobs(args)
 
@@ -387,7 +426,8 @@ def main() -> None:
         return
 
     # `long` keeps its own record so the original sweep's environment.json survives
-    env_name = "environment_long.json" if args.exp == "long" else "environment.json"
+    env_name = {"long": "environment_long.json",
+                "profile": "environment_profile.json"}.get(args.exp, "environment.json")
     env_path = REPO / "results" / env_name
     env_path.parent.mkdir(parents=True, exist_ok=True)
     env_path.write_text(json.dumps(environment(), indent=2))

@@ -267,6 +267,56 @@ def solve_long(inst: LWEInstance, beta: int, tours: int = 32,
     return out
 
 
+PROFILE_TOURS = (1, 2, 4, 8, 16)
+
+
+def solve_profile(inst: LWEInstance, beta: int, tours: int = 16,
+                  timeout: float = 7200.0, snapshots=PROFILE_TOURS) -> dict:
+    """`solve_single`, also recording the Gram-Schmidt profile of the basis.
+
+    Same loop as `solve_single` (one `bkz.tour` per iteration, check after each
+    tour, stop at success). Records log2 ||b_i*|| for every i after LLL
+    (snapshot 0) and after each tour in `snapshots` that is reached. The
+    profile at the tour of success is recorded too, flagged as such, because it
+    contains the planted vector. Used to compare the reduced basis with the GSA
+    and CN11 shape models (analysis/gs_profiles.py).
+    """
+    B, _, meta = primal_basis(inst)
+    d = meta["d"]
+    out = {"beta": beta, "d": d, "solved": False, "solved_tour": None,
+           "tours_run": 0, "time": 0.0, "timed_out": False, "exact": None,
+           "error": None, "profiles": {}}
+    t0 = time.perf_counter()
+    try:
+        FPLLL.set_precision(160)
+        LLL.reduction(B)
+        M = GSO.Mat(B, float_type=float_type_for(d), update=True)
+        bkz = BKZReduction(M)
+        out["profiles"]["0"] = [round(x, 5) for x in log_gs_profile(M)]
+        hit = scan_basis(inst, B, meta)
+        if hit is not None:
+            out.update(solved=True, exact=hit["exact"], solved_tour=0)
+        else:
+            par = bkz_param(min(beta, d))
+            for tour in range(1, tours + 1):
+                if time.perf_counter() - t0 > timeout:
+                    out["timed_out"] = True
+                    break
+                bkz.tour(par)
+                out["tours_run"] = tour
+                hit = scan_basis(inst, B, meta)
+                if hit is not None:
+                    out.update(solved=True, exact=hit["exact"], solved_tour=tour)
+                    out["profiles"][f"{tour}s"] = [round(x, 5) for x in log_gs_profile(M)]
+                    break
+                if tour in snapshots:
+                    out["profiles"][str(tour)] = [round(x, 5) for x in log_gs_profile(M)]
+    except Exception as exc:
+        out["error"] = f"{type(exc).__name__}: {exc}"
+    out["time"] = time.perf_counter() - t0
+    return out
+
+
 def find_beta_single(inst: LWEInstance, betas: list[int], tours: int = 8,
                      timeout: float = 600.0, beta_hint: int | None = None,
                      verbose: bool = False) -> dict:
