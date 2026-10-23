@@ -1,0 +1,17 @@
+Regenerated ||t|| matches ladder.csv for 50/50 instances
+
+Spearman correlation between ||t|| and the fraction of block sizes solved (negative = shorter t, easier)
+  8-tour sweep n=32: rho = -0.78 (p = 0.000), ||t|| from 35.7 to 45.4
+  8-tour sweep n=36: rho = -0.76 (p = 0.000), ||t|| from 40.6 to 50.1
+  8-tour sweep n=40: rho = -0.77 (p = 0.000), ||t|| from 40.9 to 50.6
+  8-tour sweep n=44: rho = -0.62 (p = 0.004), ||t|| from 42.0 to 51.9
+  32-tour run  n=32: rho = -0.63 (p = 0.003), ||t|| from 35.7 to 45.4
+  32-tour run  n=36: rho = -0.61 (p = 0.004), ||t|| from 40.6 to 50.1
+  32-tour run  n=40: rho = -0.72 (p = 0.000), ||t|| from 40.9 to 50.6
+  32-tour run  n=44: rho = -0.79 (p = 0.000), ||t|| from 42.0 to 51.9
+
+Mean ||t|| of the 20 instances against the expected length
+  n=32: mean 40.50, estimator's expectation 40.79 (ratio 0.993), rounded-Gaussian expectation 40.90, 12/20 below
+  n=36: mean 44.42, estimator's expectation 44.00 (ratio 1.010), rounded-Gaussian expectation 44.11, 9/20 below
+  n=40: mean 45.59, estimator's expectation 45.43 (ratio 1.003), rounded-Gaussian expectation 45.55, 10/20 below
+  n=44: mean 46.76, estimator's expectation 46.65 (ratio 1.002), rounded-Gaussian expectation 46.77, 9/20 below

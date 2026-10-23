@@ -1,0 +1,12 @@
+{
+  "recorded_utc": "2026-10-23T07:04:46Z",
+  "cpu": "11th Gen Intel(R) Core(TM) i7-1165G7 @ 2.80GHz",
+  "cores": 8,
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.14.4",
+  "numpy": "2.5.3",
+  "fpylll": "0.6.4",
+  "bkz_strategies": "/mnt/c/Users/maina/OneDrive/Desktop/quant/lwe-attack-study/data/bkz_strategies.json",
+  "git_commit": "581bfca09ba64602e27e8430a9823525e05f7dcd",
+  "git_dirty": false
+}

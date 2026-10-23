@@ -1,0 +1,3 @@
+Kyber512: primal_usvp beta=406 d=998 log2rop=143.77 | cheapest scanned beta=406 d=998 log2rop=143.77 | same point: True
+Kyber768: primal_usvp beta=624 d=1427 log2rop=204.91 | cheapest scanned beta=624 d=1427 log2rop=204.91 | same point: True
+Kyber1024: primal_usvp beta=874 d=1867 log2rop=275.10 | cheapest scanned beta=874 d=1867 log2rop=275.10 | same point: True
