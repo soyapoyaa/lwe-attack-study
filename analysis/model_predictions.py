@@ -81,7 +81,7 @@ def cn11_threshold(n, m, tours):
     d = m + n + 1
     r0 = [Q ** 2] * m + [1.0] * n + [TAU ** 2]          # estimator.simulator.qary_simulator, xi = 1
     for beta in range(3, d):
-        par = BKZ.EasyParam(beta) if tours is None else BKZ.Param(block_size=beta, max_loops=tours)
+        par = BKZ.Param(block_size=beta, max_loops=0 if tours is None else tours)
         r, _ = simulate(r0[:], par)
         if r[d - beta] > SIGMA ** 2 * (beta - 1) + TAU ** 2:
             return beta

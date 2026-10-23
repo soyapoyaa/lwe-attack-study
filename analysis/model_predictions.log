@@ -1,1 +1,40 @@
 (B) estimator success condition at the attacked d (smallest beta that passes)
+  n=32: GSA 20 | CN11 after 4/8/16/32 tours / converged: 35 / 30 / 27 / 27 / 27
+  n=36: GSA 34 | CN11 after 4/8/16/32 tours / converged: 42 / 38 / 37 / 37 / 37
+  n=40: GSA 44 | CN11 after 4/8/16/32 tours / converged: 50 / 46 / 46 / 46 / 46
+  n=44: GSA 54 | CN11 after 4/8/16/32 tours / converged: 58 / 55 / 55 / 55 / 55
+  n=48: GSA 63 | CN11 after 4/8/16/32 tours / converged: 66 / 64 / 64 / 64 / 64
+
+(A) PV21 BKZ simulator: predicted 50% point vs measured (logistic), by tour budget
+  n=32 tours= 4: PV21 50% at   nan | measured  24.7 | PV21 P(at prediction 20) = 0.10 | mean |pred - meas| = 0.23  <- UNRELIABLE: simulator gives P=0.69 already at beta=4
+  n=32 tours= 8: PV21 50% at   nan | measured  19.4 | PV21 P(at prediction 20) = 0.46 | mean |pred - meas| = 0.20  <- UNRELIABLE: simulator gives P=0.93 already at beta=4
+  n=32 tours=12: PV21 50% at   nan | measured  17.2 | PV21 P(at prediction 20) = 0.80 | mean |pred - meas| = 0.25  <- UNRELIABLE: simulator gives P=0.99 already at beta=4
+  n=32 tours=16: PV21 50% at   nan | measured  16.3 | PV21 P(at prediction 20) = 0.95 | mean |pred - meas| = 0.31  <- UNRELIABLE: simulator gives P=1.00 already at beta=4
+  n=32 tours=24: PV21 50% at   nan | measured  15.5 | PV21 P(at prediction 20) = 1.00 | mean |pred - meas| = 0.35  <- UNRELIABLE: simulator gives P=1.00 already at beta=4
+  n=32 tours=32: PV21 50% at   nan | measured  15.5 | PV21 P(at prediction 20) = 1.00 | mean |pred - meas| = 0.37  <- UNRELIABLE: simulator gives P=1.00 already at beta=4
+  n=36 tours= 4: PV21 50% at  38.4 | measured  35.4 | PV21 P(at prediction 34) = 0.13 | mean |pred - meas| = 0.09
+  n=36 tours= 8: PV21 50% at  32.4 | measured  29.4 | PV21 P(at prediction 34) = 0.67 | mean |pred - meas| = 0.10
+  n=36 tours=12: PV21 50% at  28.9 | measured  26.5 | PV21 P(at prediction 34) = 0.92 | mean |pred - meas| = 0.08
+  n=36 tours=16: PV21 50% at   nan | measured  24.9 | PV21 P(at prediction 34) = 0.98 | mean |pred - meas| = 0.06  <- UNRELIABLE: simulator gives P=0.14 already at beta=10
+  n=36 tours=24: PV21 50% at   nan | measured  22.4 | PV21 P(at prediction 34) = 1.00 | mean |pred - meas| = 0.09  <- UNRELIABLE: simulator gives P=0.32 already at beta=10
+  n=36 tours=32: PV21 50% at   nan | measured  21.3 | PV21 P(at prediction 34) = 1.00 | mean |pred - meas| = 0.12  <- UNRELIABLE: simulator gives P=0.53 already at beta=10
+  n=40 tours= 4: PV21 50% at  46.2 | measured  45.4 | PV21 P(at prediction 44) = 0.25 | mean |pred - meas| = 0.04
+  n=40 tours= 8: PV21 50% at  41.1 | measured  40.6 | PV21 P(at prediction 44) = 0.83 | mean |pred - meas| = 0.08
+  n=40 tours=12: PV21 50% at  37.7 | measured  38.8 | PV21 P(at prediction 44) = 0.97 | mean |pred - meas| = 0.06
+  n=40 tours=16: PV21 50% at  36.1 | measured  36.7 | PV21 P(at prediction 44) = 1.00 | mean |pred - meas| = 0.05
+  n=40 tours=24: PV21 50% at  34.2 | measured  34.6 | PV21 P(at prediction 44) = 1.00 | mean |pred - meas| = 0.06
+  n=40 tours=32: PV21 50% at  32.5 | measured  32.6 | PV21 P(at prediction 44) = 1.00 | mean |pred - meas| = 0.05
+  n=44 tours= 4: PV21 50% at  53.2 | measured  53.4 | PV21 P(at prediction 54) = 0.57 | mean |pred - meas| = 0.04
+  n=44 tours= 8: PV21 50% at  48.1 | measured  49.6 | PV21 P(at prediction 54) = 0.95 | mean |pred - meas| = 0.07
+  n=44 tours=12: PV21 50% at  45.7 | measured  46.7 | PV21 P(at prediction 54) = 0.99 | mean |pred - meas| = 0.06
+  n=44 tours=16: PV21 50% at  44.7 | measured  45.8 | PV21 P(at prediction 54) = 1.00 | mean |pred - meas| = 0.06
+  n=44 tours=24: PV21 50% at  43.5 | measured  44.2 | PV21 P(at prediction 54) = 1.00 | mean |pred - meas| = 0.07
+  n=44 tours=32: PV21 50% at  41.9 | measured  43.0 | PV21 P(at prediction 54) = 1.00 | mean |pred - meas| = 0.06
+  n=48 tours= 4: PV21 50% at  62.1 | measured   nan | PV21 P(at prediction 63) = 0.59 | mean |pred - meas| = nan
+  n=48 tours= 8: PV21 50% at  57.4 | measured   nan | PV21 P(at prediction 63) = 0.95 | mean |pred - meas| = nan
+  n=48 tours=12: PV21 50% at  55.3 | measured   nan | PV21 P(at prediction 63) = 0.99 | mean |pred - meas| = nan
+  n=48 tours=16: PV21 50% at  54.0 | measured   nan | PV21 P(at prediction 63) = 1.00 | mean |pred - meas| = nan
+  n=48 tours=24: PV21 50% at  52.3 | measured   nan | PV21 P(at prediction 63) = 1.00 | mean |pred - meas| = nan
+  n=48 tours=32: PV21 50% at  51.2 | measured   nan | PV21 P(at prediction 63) = 1.00 | mean |pred - meas| = nan
+
+wrote model_predictions.json and figs/fig6_model_vs_measured.png/.pdf
