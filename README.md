@@ -23,6 +23,7 @@ mamba create -n lwe -c conda-forge sage python=3.11 numpy pandas matplotlib scip
 mamba activate lwe
 
 git clone https://github.com/malb/lattice-estimator.git   # into the repo root
+git -C lattice-estimator checkout 53da598   # version used in the paper
 python3 src/strategies.py        # should print a real path, not "none"
 ```
 
