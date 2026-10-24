@@ -1,14 +1,14 @@
 # Protocol
 
-Pre-registered description of the experiment, written before interpreting
-results. It describes what the code in `src/` actually does; if you change the
-code, change this file in the same commit, and note the change in the paper.
+Description of the experiment and its analysis. It describes what the code in
+`src/` actually does; if you change the code, change this file in the same
+commit, and note the change in the paper. Deviations from it are recorded, with
+dates, in Section 11.
 
-Frozen on: [DATE]  ·  Commit: [HASH]
-[AUTHOR: fill in when and in which commit this file was frozen. The first commit
-of this repository that contains it is 99117b0 (2026-10-13); the main sweep ran
-on 2026-09-23 from commit 0f3cce2 of an earlier local repository. If the protocol
-was not frozen before the sweep, say so here rather than giving a date.]
+Frozen on: no version of this file committed before data collection is
+available. It was first committed to this repository in 99117b0 (2026-10-13),
+after the main sweep (2026-09-23). Changes since then are recorded in
+Section 11.
 
 ---
 
@@ -89,8 +89,8 @@ Two modes:
 β grid: even values, 4 to 80. Exponential search outward from the estimator's
 predicted β to bracket the transition, then binary search within the bracket.
 
-Success is expected to be monotone in β but is not guaranteed, pruning is
-randomised so the reported per-instance value is "the smallest β located by
+Success is expected to be monotone in β but is not guaranteed: pruning is
+randomised, so the reported per-instance value is "the smallest β located by
 this search", and the headline observable is a success *probability*, not a
 per-instance threshold.
 
