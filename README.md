@@ -256,12 +256,17 @@ Each `results/environment*.json` file records the commit used by the run.
 
 | Run | Date | Commit |
 |---|---|---|
-| Main sweep and ladder (`environment.json`) | 2026-09-23 | `0f3cce2`, with uncommitted changes |
+| Main sweep and ladder (`environment.json`) | 2026-09-23 | none (see below) |
 | Long-tour run (`environment_long.json`) | 2026-10-16 | `ab5a2b9`, with uncommitted changes |
 | Basis-profile run (`environment_profile.json`) | 2026-10-23 | `581bfca`, clean |
 
-Commit `0f3cce2` is not part of this repository's history; the first commit
-here is `99117b0` (2026-10-13). In the environment files, the absolute path of
+The experiment code was not under its own version control when the main sweep
+and ladder were run. The commit recorded in `environment.json` (`0f3cce2`)
+belongs to an unrelated repository and does not identify the code. The source
+files were last modified on 2026-09-21 and the raw data last written on
+2026-09-23; the code was first committed here as `99117b0` (2026-10-13), and
+`MANIFEST.sha256` gives checksums of the source and data files. The protocol
+(`PROTOCOL.md`) was likewise not committed before the main sweep. In the environment files, the absolute path of
 the strategies file has been replaced by its path relative to the repository
 (`data/bkz_strategies.json`); no other recorded value has been changed.
 
