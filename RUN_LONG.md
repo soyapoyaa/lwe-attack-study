@@ -7,8 +7,7 @@ It writes `results/raw/long.csv` and `results/environment_long.json`. It never t
 ## Before you start
 
 1. Use the same Python environment as the original sweep (Python 3.14, fpylll 0.6.4) and the same strategies file (`data/bkz_strategies.json`). The analysis checks that the first 8 tours reproduce `prob.csv`. A different fpylll or strategies file could break that check.
-2. Commit the current code so the run records a real commit:
-   `git add -A && git commit -m "Add long-tour control run and replay analyses"`
+2. Commit the current code so the run records a real commit. (The recorded run used `ab5a2b9` with uncommitted changes; see the README, "Provenance of the runs".)
 3. Plug the laptop in and stop it from sleeping during the run.
 
 ## Run
@@ -23,7 +22,13 @@ python3 src/run_sweep.py long --ns 36 32 40 --trials 20 --jobs 7
 python3 src/run_sweep.py long --ns 44 --trials 20 --jobs 7 --beta-above 6
 ```
 
-Add `--dry-run` to either command to see the job count without running anything. If a run is interrupted, run the same command again. It skips finished trials.
+After the first analysis, the 32-tour 50% point at n = 36 was at the bottom edge of the grid, so the n = 36 grid was extended down to β = 14 and 16 (40 more calls; the 8-tour value in Figure 5 differs from Table 4 for this reason):
+
+```bash
+python3 src/run_sweep.py long --ns 36 --trials 20 --jobs 7 --beta-window 20
+```
+
+Add `--dry-run` to any command to see the job count without running anything. If a run is interrupted, run the same command again. It skips finished trials.
 
 Time estimates are upper bounds from `prob.csv`, assuming every 8-tour failure runs all 32 tours. Each call's limit is 7,200 s, checked between tours.
 
@@ -44,4 +49,4 @@ The rest reports:
 
 ## Then
 
-Fill in the `[RESULTS PENDING]` notes in Sections 5.4 and 8 of the draft. Or send `analysis/tour_convergence.json` and `results/raw/long.csv` back for a check before you write it up.
+The results are in Section 5.4 and Figure 5 of the paper (`analysis/make_fig_tours.py`).

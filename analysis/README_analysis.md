@@ -14,10 +14,14 @@ Run from this directory (`analysis/`), with `results/` and `src/` one level up.
     python3 tour4_stats.py           # 4-tour success curves (kept for make_figs.py; tour_budget.py gives the same numbers)
     python3 tour_budget.py           # every budget 1-8 tours: beta_50, beta_90, solved-by-tour at the prediction (Section 5.4); about 5-10 minutes
     python3 tour_convergence.py      # analyses results/raw/long.csv from `run_sweep.py long` (see ../RUN_LONG.md)
+    python3 make_fig_tours.py        # Figure 5 (50% point against the tour budget), from tour_convergence.json
+    python3 target_norm.py           # length of the planted vector against success (Section 5.8); regenerates instances from their seeds
+    python3 model_predictions.py --pv21 PATH   # Postlethwaite-Virdia simulator and CN11 condition vs measurements, Figure 6; needs fpylll and a clone of github.com/fvirdia/usvp-simulation (see ../RUN_V5.md)
+    python3 gs_profiles.py           # measured Gram-Schmidt profiles vs GSA and CN11, Figure 7; needs fpylll
     python3 make_figs.py             # -> figs/*.png (needs tour4_stats.json)
     python3 replay_local_minimum.py  # replay of the estimator's local_minimum over the scans
 
-Requires numpy, pandas, scipy, matplotlib.
+Requires numpy, pandas, scipy, matplotlib; the last two scripts also need fpylll.
 
 ## Provenance and responsibility
 These scripts were written with AI assistance (Claude, in the conversation that produced the draft). They have been run, but

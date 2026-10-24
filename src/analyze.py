@@ -8,6 +8,17 @@ Reads   results/raw/{ladder,prob,mtrade}.csv   (whichever exist)
                                                 falls back to the pure-Python
                                                 GSA reimplementation if absent,
                                                 and says so on the figure)
+        results/scan_n*.csv                    (exhaustive cost_gsa scans)
+
+The GSA prediction (beta_gsa) is the global minimum of cost_gsa, taken from the
+exhaustive scans, as in the paper. primal_usvp's own GSA answer misses that
+minimum at n = 32, 36 and 40 (paper, Section 5.7), so it is kept separately as
+beta_gsa_primal_usvp and never used as the prediction. beta_cn11 is
+primal_usvp's CN11 answer, which inherits the same miss at n <= 40.
+
+This is a quick-look summary. The paper's tables and figures come from the
+scripts in analysis/ (see analysis/README_analysis.md).
+
 Writes  figures/*.png, figures/*.pdf
         results/summary_*.csv
         paper/tables/*.tex
@@ -58,7 +69,22 @@ def predictions(ns, q, sigma, m_mult=8) -> pd.DataFrame:
     p = REPO / "results" / "predictions.csv"
     if p.exists():
         df = pd.read_csv(p)
-        df.attrs["source"] = "lattice-estimator"
+        # primal_usvp's GSA answer is not the minimum of its own cost model at
+        # small n; replace it by the exhaustive-scan minimum where we have one.
+        df = df.rename(columns={"beta_gsa": "beta_gsa_primal_usvp", "d_gsa": "d_gsa_primal_usvp"})
+        df["beta_gsa"], df["d_gsa"] = np.nan, np.nan
+        for i, n in df["n"].items():
+            scan = REPO / "results" / f"scan_n{int(n)}.csv"
+            if scan.exists():
+                s = pd.read_csv(scan)
+                best = s.loc[s["log2rop"].idxmin()]
+            else:
+                pr = primal_usvp(n=int(n), q=int(df.at[i, "q"]), sigma_s=float(df.at[i, "sigma"]),
+                                 sigma_e=float(df.at[i, "sigma"]), m=int(df.at[i, "m_available"]))
+                best = {"beta": pr.beta, "d": pr.d}
+            df.at[i, "beta_gsa"], df.at[i, "d_gsa"] = best["beta"], best["d"]
+        df["beta_gsa"], df["d_gsa"] = df["beta_gsa"].astype(int), df["d_gsa"].astype(int)
+        df.attrs["source"] = "lattice-estimator (GSA: global minimum of cost_gsa from the scans)"
         return df
     rows = []
     for n in ns:
@@ -117,10 +143,10 @@ def fig_ladder(df: pd.DataFrame) -> pd.DataFrame | None:
                 label="measured, progressive BKZ (median)")
     if "beta_gsa" in pred:
         ax.plot(pred.index, pred["beta_gsa"], "^-", color=C_PRED_GSA, ms=4,
-                label="estimator, GSA shape model")
+                label="GSA prediction (global minimum of cost_gsa)")
     if "beta_cn11" in pred and pred["beta_cn11"].notna().any():
         ax.plot(pred.index, pred["beta_cn11"], "v-", color=C_PRED_CN11, ms=4,
-                label="estimator, CN11 simulator")
+                label="primal_usvp, CN11 (misses its minimum at $n \\leq 40$)")
     ax.axhline(40, color="grey", lw=0.8, ls=":")
     ax.text(ns.min(), 41, "estimator's GSA search floor ($\\beta=40$)",
             fontsize=7, color="grey", va="bottom")

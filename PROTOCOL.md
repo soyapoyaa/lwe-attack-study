@@ -5,6 +5,10 @@ results. It describes what the code in `src/` actually does; if you change the
 code, change this file in the same commit, and note the change in the paper.
 
 Frozen on: [DATE]  ·  Commit: [HASH]
+[AUTHOR: fill in when and in which commit this file was frozen. The first commit
+of this repository that contains it is 99117b0 (2026-10-13); the main sweep ran
+on 2026-09-23 from commit 0f3cce2 of an earlier local repository. If the protocol
+was not frozen before the sweep, say so here rather than giving a date.]
 
 ---
 
@@ -136,11 +140,6 @@ no lattice reduction.
 Record each one here with a date and a reason. An empty section is the goal;
 a populated one is honest.
 
-## 11. Deviations from this protocol
-
-Record each one here with a date and a reason. An empty section is the goal;
-a populated one is honest.
-
 - 2026-09-25: No deviations to the (n, m) grid, success criteria, or trial
   counts above. One methodological finding surfaced during verification of
   the estimator predictions in §9, recorded here for traceability.
@@ -160,4 +159,55 @@ a populated one is honest.
   still misses it. This is a `primal_usvp()` search limitation, not a floor
   case. All GSA predictions used elsewhere in this paper are the
   exhaustively-verified minima above, not raw `primal_usvp()` output.
-  Reported upstream: [GitHub issue URL once filed].
+  Reported upstream: https://github.com/malb/lattice-estimator/issues/225
+
+- 2026-10-16: Added, after the 8-tour results had been seen: a long-tour
+  control run (`run_sweep.py long`, `results/raw/long.csv`, RUN_LONG.md). Same
+  instances, lattices and β grid as `prob`, one BKZ-β call with up to 32 tours,
+  recording the tour of success and when fpylll's own stopping rules would have
+  stopped. Reason: success at the predicted β was still rising at the eighth
+  tour, and the 8-tour budget is not fixed by the estimator. Deviations from
+  the `prob` grid: n = 44 only up to the prediction + 6 (its high-β calls are
+  very slow); n = 36 extended down to β = 14 because the 32-tour 50% point was
+  at the edge of the grid. The run reproduces the 8-tour outcome of all 1,260
+  shared (instance, β) pairs (the 10 `prob` calls that timed out excluded).
+
+- 2026-10-23: Recorded now, decided while analysing the 8-tour sweep: three
+  changes to how §6 and §7 are applied.
+  1. β₅₀. §7 defines it by linear interpolation at the first crossing of
+     p = 0.5. The measured curves are not monotone, so the first crossing is
+     unstable. The paper reports four estimators (first crossing, last
+     crossing, isotonic regression, logistic maximum likelihood) and uses the
+     logistic fit as the main one, with bootstrap intervals over instances.
+  2. Timeouts. The 10 `prob` calls that hit the time limit are treated as
+     unknown and left out, not counted as failures; counting them as failures
+     creates a false dip in p(β).
+  3. 4-tour curve. Not a separate run: a trial counts as solved with 4 tours
+     only if it was solved within its first 4 tours, read off the recorded
+     tour of success. This is valid because the code checks for the secret
+     after every tour and nothing in a tour depends on the total budget.
+  Also, §6 says pruning is randomised and outcomes may vary per call. In these
+  runs the outcome reproduces for a given instance and β (2026-10-16 entry), so
+  p(β) is a fraction of the 20 instances.
+
+- 2026-10-23: Correction to the 2026-09-25 entry. At n = 32 and 36 the miss is not
+  only the β ≥ 40 floor. Exhaustive scans show `primal_usvp()` also misses the
+  cheapest point inside its own range, by 2.0 bits at n = 32 (best β ≥ 40:
+  β = 40, d = 78) and 3.6 bits at n = 36 (β = 40, d = 99); the floor accounts
+  for a further 11.6 and 1.4 bits (paper, Table 8). That entry's table is left as
+  recorded. The CN11 mode inherits the miss at n = 32, 36 and 40, because it
+  searches only a window around the GSA answer (`results/predictions.csv`:
+  β = 59, 66, 72). Every prediction in the paper is the global minimum of
+  `cost_gsa` from the scans, as stated in that entry.
+
+- 2026-10-23: Clarification of §8. The 20 instances per n are the same at every
+  β (seeds 1–20), so the success curve is a fraction of one set of 20
+  instances, and outcomes are reproducible per (instance, β) (see the 2026-10-16
+  entry). The paper's intervals resample instances, not calls.
+
+- 2026-10-23: Added, after the results above had been seen: a basis-profile
+  run (`run_sweep.py profile`, `results/raw/profiles.csv`, 160 calls at β = the
+  prediction and the prediction − 8, up to 16 tours) and comparisons with the
+  success-probability simulator of Postlethwaite and Virdia and with the CN11
+  shape model (RUN_V5.md). Reason: to test explanations for success below the
+  prediction. These are exploratory analyses.

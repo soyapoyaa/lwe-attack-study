@@ -90,8 +90,27 @@ python3 src/run_sweep.py ladder --ns 32 36 40 44 48 --trials 10 --jobs 8
 # sample/dimension trade-off
 python3 src/run_sweep.py mtrade --ns 40 --trials 5 --jobs 8
 
-python3 src/analyze.py                       # -> figures/, results/summary_*.csv
+# tour-budget control: same instances, one BKZ-beta call with up to 32 tours,
+# recording the tour of success (see RUN_LONG.md)
+python3 src/run_sweep.py long --ns 36 32 40 --trials 20 --jobs 7
+python3 src/run_sweep.py long --ns 44 --trials 20 --jobs 7 --beta-above 6
+python3 src/run_sweep.py long --ns 36 --trials 20 --jobs 7 --beta-window 20   # adds beta = 14, 16
+
+# basis profiles: log2 ||b*_i|| after LLL and after 1, 2, 4, 8, 16 tours,
+# at beta = prediction and prediction - 8 (see RUN_V5.md)
+python3 src/run_sweep.py profile --ns 32 36 40 44 --trials 20 --jobs 7
 ```
+
+### Analysis
+
+Every table, figure and number in the paper is produced by the scripts in
+`analysis/` from the committed CSVs, without running BKZ. The order and what
+each script produces are in [`analysis/README_analysis.md`](analysis/README_analysis.md).
+Figures are written to `analysis/figs/`.
+
+`python3 src/analyze.py` is an older quick-look summary (`figures/`, ignored by
+git, and `results/summary_*.csv`). Its GSA column is the global minimum of
+`cost_gsa` from the scans, not `primal_usvp`'s answer (see §6).
 
 Sweeps are **resumable**: re-running the same command runs only the trials
 missing from the CSV, so interrupt them freely. Use `--dry-run` to see the job
@@ -137,8 +156,8 @@ which and why.
 
 **A loose success test accepts wrong answers.** `embedding.py` counts a trial as
 solved only if the recovered secret is *exactly* the planted one, or if its
-error is no larger in ℓ₂ than the planted error. We planted the secret, so
-there is no reason to accept anything weaker.
+error is no larger in ℓ₂ than the planted error. In every recorded success the
+recovered secret was the planted one (column `exact`).
 
 ---
 
@@ -149,7 +168,12 @@ Carry these into the write-up; each is checkable in the estimator's source.
 1. **It cannot report `β < 40`.** Under the GSA shape model, `primal_usvp`
    searches block sizes from 40 upward (`local_minimum(40, max_beta, ...)` in
    `PrimalUSVP.__call__`). A measured `β` below 40 at such a grid point is
-   outside the tool's intended range, not evidence against it.
+   outside the tool's intended range, not evidence against it. Separately,
+   at n = 32, 36 and 40 its search also misses the cheapest point *inside*
+   that range (paper, Section 5.7; lattice-estimator issue
+   [#225](https://github.com/malb/lattice-estimator/issues/225)). The
+   predictions used throughout are therefore the global minima of `cost_gsa`
+   from exhaustive scans (`results/scan_n*.csv`), not `primal_usvp`'s output.
 2. **Its operation counts assume sieving** (MATZOV, BDGL16, ADPS16 …), while
    `fpylll` uses enumeration with pruning at these block sizes. Wall-clock
    times are therefore *not* comparable to `rop`. The comparable quantity is
@@ -164,21 +188,37 @@ Carry these into the write-up; each is checkable in the estimator's source.
 ## 7. Layout
 
 ```
-src/lwe_instance.py   seeded instance generation, fingerprinting
-src/embedding.py      Kannan embedding, lattice-membership test, success test
-src/attack.py         progressive BKZ + single-β mode + β search
-src/gsa_estimate.py   Sage-free reimplementation of the GSA predicate
-src/run_sweep.py      experiment driver: resumable, parallel, records provenance
-src/estimate.sage     official estimator over the grid
-src/analyze.py        figures and LaTeX tables
-results/raw/*.csv     one row per trial, append-only
-results/environment.json  CPU, core count, library versions, git commit
-figures/*.png,pdf     plus a .caption.txt per figure carrying the environment
-paper/                manuscript skeleton and generated tables
+src/lwe_instance.py        seeded instance generation, fingerprinting
+src/embedding.py           Kannan embedding, lattice-membership test, success test
+src/attack.py              progressive BKZ, single-β mode, β search, long and profile modes
+src/gsa_estimate.py        Sage-free reimplementation of the GSA predicate
+src/run_sweep.py           experiment driver: resumable, parallel, records provenance
+src/estimate.sage          official estimator over the grid -> results/predictions.csv
+src/confirm_primal_usvp.sage, src/check_kyber_usvp.sage   checks for Section 5.7
+src/analyze.py             quick-look summary (not the paper's figures)
+analysis/                  scripts that produce the paper's tables, figures and numbers
+analysis/figs/             the paper's figures (PNG, PDF)
+results/raw/*.csv          one row per trial, append-only (ladder, prob, long, profiles)
+results/scan_n*.csv        exhaustive cost_gsa scans
+results/environment*.json  CPU, core count, library versions, git commit, per run
+MANIFEST.sha256            checksums of code and data: sha256sum -c MANIFEST.sha256;
+                           rebuild with scripts/make_manifest.sh after any change
+PROTOCOL.md                the protocol, and the deviations from it
 ```
 
-Raw CSVs and `figures/` are committed deliberately: a reviewer should be able to
-regenerate every figure without rerunning a single BKZ call.
+Raw CSVs, scans and the paper's figures are committed deliberately: a reviewer
+can regenerate every figure and number without running a single BKZ call.
+
+### Provenance of the runs
+
+Each `results/environment*.json` records the commit the run used. The main
+sweep and ladder (`environment.json`, 2026-09-23) were run from commit
+`0f3cce2`, with uncommitted changes. That commit is not in this repository's
+history; the first commit here is `99117b0` (2026-10-13). The long-tour run
+used `ab5a2b9`, also with uncommitted changes, and reproduces the 8-tour
+outcome of all 1,260 instance/block-size pairs the two runs share (the 10
+sweep calls that timed out are left out). The profile run used
+`581bfca`, clean.
 
 ---
 
@@ -196,6 +236,10 @@ print(inst.fingerprint())          # must match the CSV row
 print(solve_single(inst, beta=46, tours=8))
 ```
 
-BKZ pruning is randomised, so a replay reproduces the *instance* exactly but
-not necessarily the outcome. That is why the headline experiment reports
-success probability over many instances rather than one threshold per instance.
+The recorded outcome of this call is solved, at tour 5. In our runs the outcome
+of a call is reproducible for a given instance and block size: the long-tour
+run repeats the 8-tour calls of the sweep and agrees on all 1,260 shared pairs
+(timeouts left out),
+and on the tour of success in 694 of 708 solved cases. Success probability is
+therefore a fraction of instances, not a chance per call; the paper reports it
+that way and resamples instances for its intervals.
