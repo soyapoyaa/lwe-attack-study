@@ -90,7 +90,9 @@ image, and copied to `results/predictions.csv`.
   (`/project/local/share/fplll/strategies/default.json`). BKZ with that
   strategy then fails with `RuntimeError: Cannot open strategies file`.
   `scripts/fetch_strategies.sh` downloads the file from the fplll repository
-  into `data/`, and `src/strategies.py` locates it. Without the file, BKZ runs
+  into `data/`, pinned to fplll commit `b477504` (the last change to the file,
+  in 2020), checks its SHA-256 (`f516b0a6…a27a18`, the file used in every
+  recorded run), and `src/strategies.py` locates it. Without the file, BKZ runs
   without preprocessing or pruning and is several times slower. Timings taken
   with and without it must not be compared; every run records which file it
   used in its `environment*.json`.
