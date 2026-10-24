@@ -78,9 +78,9 @@ after every tour. Floating-point type by dimension: `d` (d ≤ 90), `ld`
 
 Two modes:
 
-- **single-β** — fresh LLL-reduced basis, one block size only. This is what the
+- **single-β** - fresh LLL-reduced basis, one block size only. This is what the
   estimator models and is the mode used for every comparison against it.
-- **progressive** — one basis, ascending ladder of block sizes. This is what a
+- **progressive** - one basis, ascending ladder of block sizes. This is what a
   real attacker runs. Reported separately and never compared against the
   estimator's β as though equivalent.
 
@@ -89,8 +89,8 @@ Two modes:
 β grid: even values, 4 to 80. Exponential search outward from the estimator's
 predicted β to bracket the transition, then binary search within the bracket.
 
-Success is expected to be monotone in β but is not guaranteed — pruning is
-randomised — so the reported per-instance value is "the smallest β located by
+Success is expected to be monotone in β but is not guaranteed, pruning is
+randomised so the reported per-instance value is "the smallest β located by
 this search", and the headline observable is a success *probability*, not a
 per-instance threshold.
 
