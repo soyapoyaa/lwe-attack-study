@@ -17,13 +17,16 @@ Writes results/predictions.csv with, for every n in the grid:
   beta_dual, d_dual   dual attack
   rop_*               log2 operation counts under several cost models
 
-Three caveats to carry into the paper, all verifiable in the estimator source:
+Three properties of the estimator, all verifiable in its source:
 
   1. Under the GSA shape model, `primal_usvp` searches block sizes starting at
      beta = 40 (`local_minimum(40, max_beta, ...)` in PrimalUSVP.__call__), so
      it can never report beta < 40. Any grid point whose true block size is
      below 40 is therefore outside the tool's intended range, and a measured
-     beta < 40 there is not evidence against the estimator.
+     beta < 40 there is not evidence against the estimator. Separately, at
+     n = 32, 36 and 40 the search misses the cheapest point within its own
+     range (lattice-estimator issue #225); the study therefore uses the global
+     minima of cost_gsa from exhaustive scans (results/scan_n*.csv).
   2. Cost models (MATZOV, BDGL16, ADPS16, ...) assume *sieving*. fpylll uses
      enumeration with pruning at these block sizes. So rop is not comparable to
      our wall-clock times; the comparable quantity is beta.

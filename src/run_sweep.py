@@ -68,8 +68,9 @@ RAW = REPO / "results" / "raw"
 
 # Default parameter family. Chosen so that the estimator's predicted block size
 # spans roughly 20-80 while the lattice dimension stays under ~170, i.e. the
-# experiment is feasible on a laptop and the uSVP instance stays well-posed
-# (usvp_gap well below 1). See PLAN.md for how these were selected.
+# experiment is feasible on a single workstation and the uSVP instance stays
+# well-posed (usvp_gap well below 1). See README, Section 4.1, and the design
+# table printed by src/gsa_estimate.py.
 DEFAULTS = dict(q=257, dist="dg", sigma=4.0)
 
 GAP_LIMIT = 0.6  # refuse to run instances that are not honest uSVP instances

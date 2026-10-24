@@ -1,4 +1,4 @@
-"""Table 6 / Section 5.6: compare primal_usvp's returned point with the best beta>=40 point and the global minimum
+"""Table 8 / Section 5.7: compare primal_usvp's returned point with the best beta>=40 point and the global minimum
 of cost_gsa, using the exhaustive scans in results/scan_n*.csv (made by src/extend_scan_beta.sage with the real estimator).
 RET = beta returned by primal_usvp, as recorded in the study protocol; replay_local_minimum.py reproduces these values."""
 import os, json, pandas as pd

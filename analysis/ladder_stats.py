@@ -3,7 +3,7 @@ import pandas as pd, numpy as np
 R=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results") + "/raw/"
 l=pd.read_csv(R+"ladder.csv")
 gsa={32:20,36:34,40:44,44:54,48:63}; dgsa={32:104,36:121,40:129,44:136,48:145}
-print("TABLE 1 (fresh)")
+print("LADDER RESULTS (paper Table 3)")
 rows=[]
 for n,g in l.groupby("n"):
     s=g.beta_single; q=g.beta_prog.dropna()

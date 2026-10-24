@@ -37,8 +37,8 @@ def centered_binomial(eta: int, size, rng: np.random.Generator) -> np.ndarray:
 def discrete_gaussian(sigma: float, size, rng: np.random.Generator) -> np.ndarray:
     """Rounded Gaussian. Close enough to a discrete Gaussian for sigma >= 1.
 
-    Reported as 'rounded Gaussian' in the paper -- it is *not* an exact
-    discrete Gaussian, and saying so costs nothing while being honest.
+    The paper describes it as a rounded Gaussian, since it is not an exact
+    discrete Gaussian.
     """
     n = size if isinstance(size, tuple) else (size,)
     return np.rint(rng.normal(0.0, sigma, size=n)).astype(np.int64)

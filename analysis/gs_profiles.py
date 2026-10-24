@@ -19,7 +19,7 @@ GSA" where it matters, which would explain success below the predicted beta.
 
 Also checks that the run reproduced prob.csv (solved within 8 tours).
 
-Run from analysis/ in an environment with fpylll (lwe-venv):
+Run from analysis/ in an environment with fpylll:
     python3 gs_profiles.py
 Writes gs_profiles.json and figs/fig7_gs_profile.{png,pdf}.
 """

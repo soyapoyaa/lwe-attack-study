@@ -14,7 +14,7 @@ plt.rcParams.update({"font.family":"DejaVu Serif","font.size":9,"axes.spines.top
     "axes.grid":True,"grid.alpha":.25,"grid.linewidth":.5,"figure.dpi":200,"savefig.dpi":200,"legend.frameon":False})
 ns=[32,36,40,44,48]
 
-# ---------- Fig 1: beta vs n
+# ---------- figs/fig1_beta_vs_n.png: block size vs n (paper Figure 2)
 fig,ax=plt.subplots(figsize=(6.4,4.1))
 ax.axhline(40,color=GRY,ls=":",lw=1); ax.text(31.0,40.7,"estimator GSA search floor (β = 40)",ha="left",va="bottom",fontsize=7.5,color=GRY)
 ax.plot(ns,[gsa[n] for n in ns],"-s",color=BLK,lw=1.8,ms=6,label="GSA prediction (global minimum of cost_gsa)",zorder=5)
@@ -38,7 +38,7 @@ ax.set_title("Measured vs. predicted block size (q = 257, σ = 4)",fontsize=10)
 ax.legend(loc="upper left",fontsize=7.4)
 fig.tight_layout(); fig.savefig("figs/fig1_beta_vs_n.png"); plt.close(fig)
 
-# ---------- Fig 2: success probability
+# ---------- figs/fig2_success_prob.png: success fraction (paper Figure 1)
 def wil(k,n,z=1.96):
     ph=k/n; d=1+z*z/n; c=(ph+z*z/(2*n))/d; h=z*np.sqrt(ph*(1-ph)/n+z*z/(4*n*n))/d; return c-h,c+h
 fig,axs=plt.subplots(2,2,figsize=(6.6,5.2),sharey=True)
@@ -67,7 +67,7 @@ h=[Line2D([],[],marker="o",color=BLU,ls="",ms=4.5,label="p̂(β), timed-out tria
 fig.legend(handles=h,loc="lower center",ncol=3,fontsize=7.3,bbox_to_anchor=(0.5,-0.005))
 fig.tight_layout(rect=[0,0.085,1,1]); fig.savefig("figs/fig2_success_prob.png"); plt.close(fig)
 
-# ---------- Fig 3: time vs n
+# ---------- figs/fig3_time_vs_n.png: wall time vs n (paper Figure 3)
 fig,ax=plt.subplots(figsize=(5.6,3.7)); rng=np.random.default_rng(0)
 xj=l.n.values+rng.uniform(-.45,.45,len(l)); ax.scatter(xj,l.time_single_at_beta,s=16,color=BLU,alpha=.75,label="one instance (solving call)")
 mt=[N['ladder'][str(n)]['t_med'] for n in ns]; ax.plot(ns,mt,"D",color=VER,ms=6,label="median per n",zorder=5)
@@ -77,7 +77,7 @@ ax.set_yticks([1,2,4,8,16,32,64,128,256,512,1024]); ax.set_yticklabels(["1","2",
 ax.set_title("Cost of the solving single-BKZ call (fpylll enumeration)",fontsize=10); ax.legend(fontsize=7.4,loc="upper left")
 fig.tight_layout(); fig.savefig("figs/fig3_time_vs_n.png"); plt.close(fig)
 
-# ---------- Fig 4: cost curve n=40
+# ---------- figs/fig4_cost_curve_n40.png: cost_gsa vs beta at n = 40 (paper Figure 4)
 s=pd.read_csv(R+"scan_n40.csv"); s=s[(s.beta>=40)&(s.beta<=130)]
 fig,ax=plt.subplots(figsize=(6.0,3.7))
 ax.plot(s.beta,s.log2rop,color=BLK,lw=1.4)

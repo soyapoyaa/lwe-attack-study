@@ -1,60 +1,69 @@
 # Basis-profile run and model comparison
 
-The runs and analyses behind Section 5.8 of the paper. Only step 3 needs real BKZ runs, and it takes about 15–20 minutes. Everything else takes a few minutes.
+## Purpose
 
-| Step | What it answers | Environment | Time |
+These runs and analyses test explanations for success below the predicted block
+size (Section 5.8 of the paper). Only the basis-profile run executes BKZ, and it
+takes about 15–20 minutes.
+
+| Step | Question | Environment | Time |
 |---|---|---|---|
-| 3 | Basis-shape run: what the reduced basis actually looks like after 1–16 tours | lwe-venv | ~15–20 min |
-| 4a | Does instance difficulty track the planted vector's length? | lwe-venv | < 1 min |
-| 4b | Postlethwaite–Virdia simulator and CN11 condition against the measurements | lwe-venv | ~1 min |
-| 4c | Measured basis shape against the GSA and CN11 at the index the success condition uses | lwe-venv | ~1 min |
-| 5 | Estimator predictions incl. CN11 (`results/predictions.csv`) | sage | a few min |
-| 6 | Optional: does issue #225 affect Kyber? | sage | a few min |
+| 2 | What does the reduced basis look like after 1–16 tours? | fpylll | 15–20 min |
+| 3a | Does the difficulty of an instance track the length of its planted vector? | fpylll | < 1 min |
+| 3b | How do the Postlethwaite–Virdia simulator and the CN11 condition compare with the measurements? | fpylll | about 1 min |
+| 3c | How does the measured basis compare with the GSA and CN11 at the index the success condition uses? | fpylll | about 1 min |
+| 4 | Estimator predictions, including CN11 (`results/predictions.csv`) | SageMath | a few minutes |
+| 5 | Does the search miss of issue #225 occur for Kyber? | SageMath | a few minutes |
 
-## 1. Code
+The code for these runs is commit `581bfca`, which the profile run recorded with
+a clean working tree (`results/environment_profile.json`). The CN11 setting in
+`analysis/model_predictions.py` was corrected afterwards in `830091e`;
+`model_predictions.json` was produced by the corrected script.
 
-The code for these runs is in commit `581bfca`; the profile run recorded that commit, clean (`results/environment_profile.json`). The CN11 setting in `analysis/model_predictions.py` was corrected afterwards in `830091e`, and `model_predictions.json` comes from the corrected script.
+## 1. Simulator code
 
-## 2. Get the Postlethwaite–Virdia simulator code
-
-Their repository has no licence file, so it is not copied into this one. The analysis imports it from your clone.
+The simulator of Postlethwaite and Virdia has no licence file, so it is not
+included in this repository. The analysis imports it from a separate clone:
 
 ```bash
-git clone https://github.com/fvirdia/usvp-simulation ~/usvp-simulation
+git clone https://github.com/fvirdia/usvp-simulation ../usvp-simulation   # commit 333416d
 ```
 
-## 3. Basis-shape run (lwe-venv)
+## 2. Basis-profile run
+
+From the repository root, in the environment with fpylll:
 
 ```bash
-conda deactivate 2>/dev/null; source ~/lwe-venv/bin/activate
-python3 -c "import fpylll, scipy, pandas, matplotlib; print('ok')" || pip install matplotlib
-python3 src/run_sweep.py profile --ns 32 36 40 44 --trials 20 --jobs 7 --dry-run   # expect 160 jobs
+python3 src/run_sweep.py profile --ns 32 36 40 44 --trials 20 --jobs 7 --dry-run   # 160 jobs
 python3 src/run_sweep.py profile --ns 32 36 40 44 --trials 20 --jobs 7
 ```
 
-## 4. Analyses (lwe-venv, from analysis/)
+## 3. Analyses
 
 ```bash
 cd analysis
-python3 target_norm.py                             | tee target_norm.log
-python3 model_predictions.py --pv21 ~/usvp-simulation | tee model_predictions.log
-python3 gs_profiles.py                             | tee gs_profiles.log
+python3 target_norm.py                                   | tee target_norm.log
+python3 model_predictions.py --pv21 ../../usvp-simulation | tee model_predictions.log
+python3 gs_profiles.py                                   | tee gs_profiles.log
 cd ..
 ```
 
-Check the first line of `gs_profiles.log`: it should say every outcome agrees with `prob.csv` within 8 tours.
+The first line of `gs_profiles.log` must state that every outcome agrees with
+`prob.csv` within 8 tours.
 
-## 5. Estimator predictions (Sage)
+## 4. Estimator predictions
+
+In the SageMath environment:
 
 ```bash
-deactivate; conda activate sage
-sage src/estimate.sage | tee results/estimate.log            # writes results/predictions.csv
+sage src/estimate.sage | tee results/estimate.log         # writes results/predictions.csv
 ```
 
-## 6. Optional: Kyber check for issue #225 (Sage)
+## 5. Kyber check for issue #225
 
 ```bash
 sage src/check_kyber_usvp.sage | tee results/check_kyber_usvp.txt
 ```
 
-It printed `same point: True` for Kyber-512, -768 and -1024: the search miss of issue #225 does not occur there.
+The recorded output is `same point: True` for Kyber-512, Kyber-768 and
+Kyber-1024: the search miss reported in issue #225 does not occur there.

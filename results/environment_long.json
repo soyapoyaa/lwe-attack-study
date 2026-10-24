@@ -6,7 +6,7 @@
   "python": "3.14.4",
   "numpy": "2.5.3",
   "fpylll": "0.6.4",
-  "bkz_strategies": "/mnt/c/Users/maina/OneDrive/Desktop/quant/lwe-attack-study/data/bkz_strategies.json",
+  "bkz_strategies": "data/bkz_strategies.json",
   "git_commit": "ab5a2b95714b55139ceb3bbfbb4c200569b8c74c",
   "git_dirty": true
 }

@@ -8,8 +8,6 @@ __pycache__/
 
 # Local working files
 logs/
-Miniforge3-Linux-x86_64.sh
-analysis_scripts.zip
 
 # Cloned separately (see README §1): lattice-estimator at commit 53da598
 lattice-estimator/

@@ -4,7 +4,7 @@ Two models, both taking the number of BKZ tours into account:
 
   (A) Postlethwaite-Virdia [PKC 2021] BKZ success-probability simulator.
       Their code (github.com/fvirdia/usvp-simulation) has no licence file, so it
-      is NOT copied here: pass the path of your own clone with --pv21. We import
+      is NOT copied here: pass the path of a local clone (commit 333416d) with --pv21. We import
       their CN11 BKZ simulator, LLL profile simulator and success accumulator
       unchanged, and replace only their Sage chi-squared CDF with scipy's
       (the same function). Embedding: their "baigal" with nu = 1, which is our
@@ -23,8 +23,8 @@ Two models, both taking the number of BKZ tours into account:
 Then compares (A) with the measured success curves (prob.csv for 4 and 8 tours,
 long.csv for 8 to 32 tours): 50% points and the curves themselves.
 
-Run from analysis/ in the environment that has fpylll and scipy (lwe-venv):
-    python3 model_predictions.py --pv21 ~/usvp-simulation
+Run from analysis/ in an environment with fpylll and scipy:
+    python3 model_predictions.py --pv21 ../../usvp-simulation
 Writes model_predictions.json and figs/fig6_model_vs_measured.{png,pdf}.
 """
 import argparse

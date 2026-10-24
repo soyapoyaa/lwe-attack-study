@@ -44,7 +44,6 @@ third-party system is attacked.
 | `results/environment*.json` | Hardware, library versions and git commit recorded by each run |
 | `PROTOCOL.md` | The experimental protocol and a dated record of deviations from it |
 | `RUN_LONG.md`, `RUN_V5.md` | Instructions for the long-tour run and the basis-profile run |
-| `PLAN.md` | Original execution plan and timing estimates |
 | `MANIFEST.sha256` | SHA-256 checksums of the code, data and analysis outputs |
 | `scripts/` | `fetch_strategies.sh` (BKZ strategies file) and `make_manifest.sh` |
 
@@ -188,7 +187,8 @@ print(solve_single(inst, beta=46, tours=8))  # recorded outcome: solved at tour 
 ### 4.1 Parameters
 
 The instance family uses `q = 257`, with secret and error both drawn from a
-discrete Gaussian distribution with `σ = 4`. The secret dimension `n` runs from
+rounded Gaussian distribution: a continuous Gaussian with `σ = 4`, rounded to
+the nearest integer. This is close to, but not exactly, a discrete Gaussian. The secret dimension `n` runs from
 32 upward, and the number of samples `m` is the number the estimator's own
 optimum uses.
 
@@ -261,7 +261,9 @@ Each `results/environment*.json` file records the commit used by the run.
 | Basis-profile run (`environment_profile.json`) | 2026-10-23 | `581bfca`, clean |
 
 Commit `0f3cce2` is not part of this repository's history; the first commit
-here is `99117b0` (2026-10-13).
+here is `99117b0` (2026-10-13). In the environment files, the absolute path of
+the strategies file has been replaced by its path relative to the repository
+(`data/bkz_strategies.json`); no other recorded value has been changed.
 
 The outcome of a BKZ call is reproducible for a given instance and block size.
 The long-tour run repeats the 8-tour calls of the main sweep and agrees with it
